@@ -48,6 +48,10 @@ logs/
 *.swo
 *~
 
+# Bob local workspace — contains MCP config with potential OAuth tokens
+# Cluster ID (non-secret) is documented in docs/MILESTONE-0D-PREREQUISITES.md
+.bob/
+
 # Local Terraform state — no infra yet but exclude early
 *.tfstate
 *.tfstate.backup
