@@ -33,8 +33,8 @@ No seventh application table. No separate `memory_vectors` table.
 ### Vector Index
 
 - Column: `memory_events.operational_vector VECTOR(3)`
-- Index: `CREATE VECTOR INDEX idx_memory_events_op_vector ON memory_events (operational_vector) WITH (lists = 1)`
-- Syntax: Official CockroachDB IVF vector index syntax
+- Index: `CREATE VECTOR INDEX idx_memory_events_op_vector ON memory_events (operational_vector)`
+- Syntax: CockroachDB native vector index (partition-tree, not pgvector IVF)
 - No cluster setting changes required
 
 ### Vector Semantics (VECTOR(3))

@@ -44,14 +44,14 @@ CREATE TABLE IF NOT EXISTS memory_events (
     )
 );
 
-CREATE INDEX IF NOT EXISTS idx_memory_events_mission_id ON memory_events (mission_id);
-
 -- Vector index for cosine-similarity nearest-neighbour retrieval.
 -- Uses CockroachDB native vector index (partition-tree, NOT pgvector IVF).
 -- Valid storage parameters: min_partition_size, max_partition_size, build_beam_size.
 -- The `lists` parameter belongs to pgvector/pg_ivfflat and is NOT supported here.
 -- IF NOT EXISTS is NOT supported by CREATE VECTOR INDEX in CockroachDB v26.2.x;
 -- the index is created unconditionally (safe because 001_init.sql is applied once).
+CREATE INDEX IF NOT EXISTS idx_memory_events_mission_id ON memory_events (mission_id);
+
 CREATE VECTOR INDEX idx_memory_events_op_vector
     ON memory_events (operational_vector);
 
