@@ -1,6 +1,6 @@
 <!--
 MILESTONE=BOSAI_COCKROACHDB_AWS_0D
-STATUS=IN_PROGRESS
+STATUS=IN_PROGRESS_AWS_GATES_COMPLETE
 IMPLEMENTATION_STARTED=false
 -->
 
@@ -10,7 +10,7 @@ IMPLEMENTATION_STARTED=false
 
 ```
 MILESTONE=BOSAI_COCKROACHDB_AWS_0D
-STATUS=IN_PROGRESS
+STATUS=IN_PROGRESS_AWS_GATES_COMPLETE
 FROZEN_DATE=2026-08-15
 AUTHORIZED_BY=Arthur Franck (Human GO)
 ```
@@ -25,14 +25,14 @@ AUTHORIZED_BY=Arthur Franck (Human GO)
 | 0D-G2 | Read-only connectivity proof (`SELECT 1` + version inspection) | ✅ PASS |
 | 0D-G3 | VECTOR type + vector indexing live proof | ✅ PASS |
 | 0D-G4 | Managed MCP status preserved | ✅ PASS |
-| 0D-G5a | AWS CLI presence check | ⏳ PENDING (human action) |
-| 0D-G5b | AWS authenticated identity (account ID redacted) | ⏳ PENDING |
-| 0D-G5c | AWS region freeze eu-central-1 | ⏳ PENDING |
-| 0D-G5d | Free-tier / billing / budget inspection | ⏳ PENDING |
-| 0D-G5e | No Lambda / no Function URL (clean state confirmed) | ⏳ PENDING |
-| 0D-G5f | S3 bucket evaluation | ⏳ PENDING |
+| 0D-G5a | AWS CLI presence check | ✅ PASS (aws-cli/2.36.24) |
+| 0D-G5b | AWS authenticated identity (account ID redacted) | ✅ PASS |
+| 0D-G5c | AWS region freeze eu-central-1 | ✅ PASS |
+| 0D-G5d | Free-tier / billing / budget inspection | ✅ PASS |
+| 0D-G5e | No Lambda / no Function URL (clean state confirmed) | ✅ PASS |
+| 0D-G5f | S3 bucket evaluation | ✅ PASS (deferred — pre-existing public bucket not reused) |
 | 0D-G6 | `.bob/mcp.json` sanitized — no credentials tracked | ✅ PASS |
-| 0D-G7 | Documentation + commit + push + Draft PR | ⏳ PENDING |
+| 0D-G7 | Documentation + commit + push + Draft PR | ✅ PASS |
 
 ---
 
@@ -203,21 +203,148 @@ connection strings are present in the file or tracked by git.
 
 ## Gate 0D-G5 — AWS Prerequisites
 
-> Gates 0D-G5a through 0D-G5f are pending AWS CLI installation.
-> The AWS CLI was not found on the development machine at milestone checkpoint.
+### 0D-G5a — AWS CLI
 
 ```
-AWS_CLI_INSTALLED=false
-AWS_CLI_CHECK_DATE=2026-08-15
-HUMAN_ACTION_REQUIRED=Install AWS CLI v2
-RESUME_PROMPT=AWS CLI installed. Continue BOSAI_COCKROACHDB_AWS_0D from Gate 5b.
+AWS_CLI_INSTALLED=true
+AWS_CLI_VERSION=aws-cli/2.36.24 Python/3.14.7 Darwin/25.5.0 source/arm64
+AUTH_METHOD=aws login (IAM Identity Center / SSO — no long-lived static keys)
 ```
 
-**Installation instructions:**
-- macOS: `brew install awscli` or https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-- Verify: `aws --version`
+---
 
-Gates 5b–5f will be completed in the next session after CLI installation is confirmed.
+### 0D-G5b — AWS Authenticated Identity
+
+```
+AWS_AUTHENTICATED=true
+AUTH_METHOD=aws login (SSO)
+ACCOUNT_ID=REDACTED
+ARN=arn:aws:iam::REDACTED:root
+ACCOUNT_TYPE=root (no IAM users present — IAM summary: Users=0)
+IAM_ROLES_PRESENT=3 (pre-existing, not created by this milestone)
+IAM_ACCESS_KEYS_ON_ACCOUNT=0
+CREDENTIALS_PRINTED=false
+SESSION_TOKEN_PRINTED=false
+```
+
+> ⚠️ **Root account in use.** The authenticated identity is the AWS root account.
+> For implementation milestone 0E, a dedicated IAM role with least-privilege
+> policy should be created and used for Lambda execution — not root.
+> This is noted as a 0E prerequisite.
+
+---
+
+### 0D-G5c — AWS Region Freeze
+
+```
+REGION=eu-central-1
+REGION_SOURCE=config-file (~/.aws/config)
+REGION_COMPATIBLE_WITH_COCKROACHDB_CLUSTER=true
+  (CockroachDB cluster region: aws-eu-central-1 — same physical region)
+REGION_FREEZE_STATUS=PASS
+```
+
+All subsequent AWS CLI operations in this milestone use `eu-central-1` by default.
+No `--region` override is required.
+
+---
+
+### 0D-G5d — Free-Tier / Billing / Budget Inspection
+
+#### Free-tier usage (live, 2026-08-15)
+
+```
+aws freetier get-free-tier-usage
+```
+
+| Service | Usage type | Actual | Forecasted | Limit | Always Free |
+|---------|-----------|--------|-----------|-------|-------------|
+| AWS Glue | Catalog-Request | 54 | ~112 | 1,000,000/month | ✅ Yes |
+| AWS KMS | KMS-Requests | 3 | ~6 | 20,000/month | ✅ Yes |
+
+```
+LAMBDA_FREE_TIER_USED=0 (no Lambda exists)
+S3_FREE_TIER_USED=minimal (1 pre-existing bucket, created 2026-04-30)
+SECRETS_MANAGER_USED=0
+FREE_TIER_HEADROOM=ample for demo scale
+```
+
+#### Cost Explorer
+
+```
+COST_EXPLORER_ENABLED=false
+  → aws ce get-cost-and-usage returned AccessDeniedException
+  → Cost Explorer requires explicit activation in the Billing console
+  → Not activated; no historical spend data available via API
+```
+
+#### Billing alarms
+
+```
+CLOUDWATCH_BILLING_ALARMS=0 (no alarms configured in us-east-1)
+BUDGET_CONFIGURED=false (aws budgets describe-budgets returned empty)
+```
+
+> ⚠️ **No billing alarm or budget is set.** This is a risk for the demo account.
+> Recommended 0E pre-action: create a $5/month CloudWatch billing alarm
+> in `us-east-1` before any Lambda or S3 resources are created.
+
+---
+
+### 0D-G5e — Lambda / Function URL State
+
+```
+LAMBDA_FUNCTIONS_eu-central-1=0
+LAMBDA_FUNCTIONS_us-east-1=0
+LAMBDA_FUNCTIONS_eu-west-1=0
+FUNCTION_URL_COUNT=0 (no functions exist to have URLs)
+LAMBDA_CLEAN_STATE=true
+```
+
+No Lambda functions exist in any region. No Function URL exists.
+The execution environment is fully clean before milestone 0E.
+
+---
+
+### 0D-G5f — S3 Bucket Evaluation
+
+#### Pre-existing bucket found
+
+```
+BUCKET_NAME=atlas-creation-org
+BUCKET_CREATED=2026-04-30
+BUCKET_REGION=us-east-1 (LocationConstraint=null → us-east-1)
+BUCKET_OWNER=canonical user (account owner)
+```
+
+#### Bucket policy inspection
+
+```
+PUBLIC_POLICY=true
+  → Principal: * with s3:GetObject (public read)
+  → Additional CloudFront OAC policy present (distribution E2SEAY32P8KNZR)
+PUBLIC_ACCESS_BLOCK=ALL_FALSE (all four block-public-access settings are off)
+```
+
+#### Decision
+
+```
+REUSE_atlas-creation-org_FOR_BOSAI=DENIED
+REASON=
+  1. Bucket is in us-east-1; bosai target region is eu-central-1.
+  2. Bucket has a public-read policy (Principal: *) — unsuitable for
+     private evidence bundles (execution receipts, audit logs).
+  3. Bucket appears to be associated with a pre-existing CloudFront
+     distribution (unrelated to this project — ADR-000 isolation boundary).
+
+NEW_BOSAI_S3_BUCKET=DEFERRED_TO_0E
+  Creation of a new private, versioned, eu-central-1 S3 bucket is an
+  0E implementation action. It requires an IAM role (not yet created) and
+  a bucket policy scoped to that role. Creating the bucket now without
+  the IAM role would leave it in an incomplete security configuration.
+
+S3_BUCKET_CREATED_IN_0D=false
+```
 
 ---
 
@@ -271,11 +398,15 @@ NO_SCHEMA_MIGRATIONS=true
 NO_APPLICATION_CODE=true
 NO_DEPLOYMENT=true
 NO_LAMBDA_CREATED=true
-NO_S3_BUCKET_CREATED=true (deferred to Gate 5f)
+NO_S3_BUCKET_CREATED=true (deferred to 0E)
 NO_SECRET_COMMITTED=true
 NO_CREDENTIAL_PRINTED=true
+NO_ACCOUNT_ID_EXPOSED=true (redacted in all outputs)
 MCP_WRITE_ATTEMPTED=false
 WRITE_ATTEMPTED_BY_AGENT=false
+AWS_IAM_USER_CREATED=false
+AWS_IAM_ACCESS_KEY_CREATED=false
+ROOT_ACCOUNT_USED_FOR_INSPECTION_ONLY=true
 ```
 
 ---
@@ -290,3 +421,7 @@ WRITE_ATTEMPTED_BY_AGENT=false
 | 4 | AWS CLI named profiles | https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html | 0D-G5b |
 | 5 | AWS Free Tier | https://aws.amazon.com/free/ | 0D-G5d |
 | 6 | AWS Billing console | https://console.aws.amazon.com/billing/ | 0D-G5d |
+| 7 | AWS Free Tier API | https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_freetier_GetFreeTierUsage.html | 0D-G5d |
+| 8 | AWS Lambda pricing | https://aws.amazon.com/lambda/pricing/ | 0D-G5d |
+| 9 | Amazon S3 pricing | https://aws.amazon.com/s3/pricing/ | 0D-G5f |
+| 10 | AWS IAM best practices (least privilege) | https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html | 0D-G5b |
