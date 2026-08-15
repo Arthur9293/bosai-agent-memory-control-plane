@@ -50,24 +50,112 @@ It is **not authorisation**. `VECTOR_AUTHORITY=false`.
 
 ---
 
-## 2. Human SQL Application Status
+## 2. CockroachDB Live Verification — CLOSED
 
-**PENDING HUMAN ACTION** — Schema has not yet been applied to the live cluster.
+**LIVE_APPLICATION_STATUS=PASS**
+**LIVE_VERIFICATION_DATE=2026-08-15**
+**Cluster:** `bosai-memory-hack` (AWS `eu-central-1`, CockroachDB v26.2.5)
+**Database:** `bosai_agent_memory`
 
-### Required Action
+### Schema Structure Gate
+
+| Gate | Result |
+|---|---|
+| `SCHEMA_STRUCTURE_GATE` | `PASS` |
+| `LIVE_TABLE_COUNT` | `6` |
+
+**Tables confirmed live:**
+
+| # | Table |
+|---|---|
+| 1 | `approval_permits` |
+| 2 | `execution_receipts` |
+| 3 | `memory_events` |
+| 4 | `missions` |
+| 5 | `proposals` |
+| 6 | `service_state` |
+
+### Index Verification Gate
+
+**VECTOR_INDEX_GATE=PASS**
+
+| Table | Index | Result |
+|---|---|---|
+| `approval_permits` | `idx_permits_mission_id` | `PASS_LIVE_READBACK` |
+| `approval_permits` | `idx_permits_proposal_id` | `PASS_LIVE_READBACK` |
+| `approval_permits` | `idx_permits_status` | `PASS_LIVE_READBACK` |
+| `missions` | `idx_missions_incident_key` | `PASS_LIVE_READBACK` |
+| `missions` | `idx_missions_status` | `PASS_LIVE_READBACK` |
+| `missions` | `missions_pkey` | `PASS` |
+| `proposals` | `idx_proposals_mission_id` | `PASS_LIVE_READBACK` |
+| `proposals` | `idx_proposals_status` | `PASS_LIVE_READBACK` |
+| `proposals` | `proposals_pkey` | `PASS` |
+| `execution_receipts` | `idx_receipts_mission_id` | `PASS_DDL` |
+| `execution_receipts` | `idx_receipts_proposal_id` | `PASS_DDL` |
+| `execution_receipts` | `idx_receipts_outcome` | `PASS_DDL` |
+| `memory_events` | `idx_memory_events_mission_id` | `PASS` |
+| `memory_events` | `idx_memory_events_op_vector` | `PASS_LIVE_READBACK` |
+
+`memory_events.operational_vector VECTOR(3)` — column confirmed PRESENT via `SHOW COLUMNS`.
+
+### Seed Application Gate
+
+| Gate | Result |
+|---|---|
+| `SEED_002_APPLICATION_GATE` | `PASS` |
+| `SEED_002_READBACK_GATE` | `PASS` |
+
+**Live readback — `service_state`:**
 
 ```
-HUMAN_ACTION_REQUIRED=Apply schema/001_init.sql and schema/002_seed_demo.sql
-  in CockroachDB Cloud SQL Shell against bosai_agent_memory
-EXPECTED_RESULT=6 tables + vector index + synthetic seed created successfully
-DO_NOT_SHARE=SQL password, connection string, OAuth tokens
-RESUME_PROMPT=0E CockroachDB schema and seed applied successfully.
-  Continue 0E from live schema verification.
+synthetic-svc-01 | NORMAL | 1
 ```
 
-**Cluster:** `bosai-memory-hack` (AWS `eu-central-1`, CockroachDB v26.2.5)  
-**Database:** `bosai_agent_memory`  
-**SQL Shell:** CockroachDB Cloud Console → SQL Shell
+**Live readback — `missions`:**
+
+```
+00000000-0000-0000-0000-000000000001 | INCIDENT-2024-ALPHA | CLOSED
+00000000-0000-0000-0000-000000000002 | INCIDENT-2024-BETA  | CLOSED
+```
+
+**Live readback — `memory_events`:**
+
+```
+00000000-0000-0000-0001-000000000001 | mission ...0001 | INCIDENT | [0.75,0.65,0.55]
+00000000-0000-0000-0001-000000000002 | mission ...0002 | INCIDENT | [0.1,0.2,0.9]
+```
+
+### Vector Nearest-Neighbour Proof
+
+**VECTOR_NEAREST_NEIGHBOUR_PROOF=PASS**
+
+Target vector: `[0.8, 0.7, 0.6]`
+
+| Rank | Incident Key | Vector | Cosine Distance |
+|---|---|---|---|
+| 1 | `INCIDENT-2024-ALPHA` | `[0.75,0.65,0.55]` | ≈ 0.000039 |
+| 2 | `INCIDENT-2024-BETA` | `[0.1,0.2,0.9]` | ≈ 0.328616 |
+
+The nearest-neighbour result proves correct semantic ordering.
+`idx_memory_events_op_vector` existence was proven separately via `SHOW INDEXES`.
+The nearest-neighbour query result alone does **not** prove optimizer index usage.
+
+### Authority Boundary Confirmed
+
+| Invariant | Value |
+|---|---|
+| `VECTOR_AUTHORITY` | `false` |
+| `MEMORY_AUTHORITY` | `false` |
+| `LLM_CALLED` | `false` |
+| `OPENAI_CALLED` | `false` |
+| `BEDROCK_CALLED` | `false` |
+| `MCP_WRITE_ATTEMPTED` | `false` |
+| `LAMBDA_CREATED` | `false` |
+| `FUNCTION_URL_CREATED` | `false` |
+| `PUBLIC_ENDPOINT_CREATED` | `false` |
+| `DEPLOYMENT_PERFORMED` | `false` |
+| `MERGE_PERFORMED` | `false` |
+| `STOPPED_BEFORE_0F` | `true` |
 
 ---
 
