@@ -10,7 +10,7 @@ on them begins.
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 This hackathon implementation lives in a dedicated repository
@@ -38,7 +38,7 @@ BOSAI systems.
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 CockroachDB memory may inform proposals, but memory content or vector
@@ -70,7 +70,7 @@ required.
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 CockroachDB Serverless (Basic free tier) is the sole persistent memory store.
@@ -103,7 +103,7 @@ No other database or in-memory store is used at runtime.
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 
@@ -140,7 +140,7 @@ Fallback Architecture section). Vector Indexing is unconditional.
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 The AWS execution layer uses:
@@ -170,7 +170,7 @@ No VPC, NAT Gateway, ECS, EKS, CloudFront, RDS, or SageMaker is used.
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 The Human GO permit is the only object that can authorize a consequential
@@ -204,7 +204,7 @@ mission mismatch) result in `EXECUTION=DENIED` and a written receipt.
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 
@@ -242,7 +242,7 @@ LLM_AUTHORITY=false
 
 **Status:** Accepted
 
-**Date:** 2025-08-15
+**Date:** 2026-08-15
 
 **Decision:**
 The demo operates exclusively on synthetic data and a synthetic service.
