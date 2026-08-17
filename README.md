@@ -1,142 +1,41 @@
 # BOSAI Agent Memory Control Plane
 
-## Status
+> **Memory informs proposals. Memory never authorizes execution.**
 
-**Bootstrap only — implementation not started.**
+BOSAI is a governed agentic-memory control plane built for the CockroachDB × AWS Hackathon.
 
-This repository was created as the dedicated hackathon workspace for the
-CockroachDB × AWS Hackathon. No application code, database schemas, cloud
-infrastructure, or integrations exist yet.
+**Public judge demo:** https://arthur9293.github.io/bosai-agent-memory-control-plane/
 
----
+## Architecture
+`OBSERVE → RETRIEVE MEMORY → PROPOSE → POLICY CHECK → HUMAN GO → READBACK → EVIDENCE`
 
-## Problem
+CockroachDB is the persistent system of record with six live tables: `missions`, `memory_events`, `proposals`, `approval_permits`, `service_state`, and `execution_receipts`.
 
-AI agents need persistent memory across sessions and incidents, but *remembered
-information must never silently become permission to act*.
+Semantic memory uses native `VECTOR(3)` plus CockroachDB Distributed Vector Indexing. Verified target `[0.8,0.7,0.6]` ranks `INCIDENT-2024-ALPHA` first (~0.000039) and `INCIDENT-2024-BETA` second (~0.328616).
 
-Today's agentic systems either forget everything between runs (stateless) or
-grant too much autonomy once context is present (unchecked execution).
+## CockroachDB Tools
+- Cloud Managed MCP Server — configured read-only for auditable memory inspection.
+- Distributed Vector Indexing — semantic retrieval alongside transactional memory.
 
-BOSAI Agent Memory Control Plane closes that gap: memory informs proposals,
-but authority is always bounded, deterministic, and requires Human GO before
-consequential actions execute.
+## Governance
+`MEMORY_AUTHORITY=false` · `VECTOR_AUTHORITY=false` · `LLM_AUTHORITY=false`
 
----
+Consequential actions require deterministic policy and explicit, scoped, single-use Human GO permits.
 
-## Hackathon
+## AWS
+Amazon S3 evidence storage is provisioned with public access blocked, versioning enabled, and AES256 encryption.
 
-**CockroachDB × AWS Hackathon — Build with Agentic Memory**
+**AWS Lambda — Deployment Quota Under Review.** The Python 3.12 readback runtime is implemented and packaged, but live deployment is not claimed complete while AWS reviews the new-account concurrency quota.
 
-| Field | Value |
-|---|---|
-| Devpost | Registered |
-| Project | BOSAI Agent Memory Control Plane |
-| Repository | public — this repository |
+## Tests
+**35 passed.** Coverage includes policy gates, permit replay denial, vector retrieval, fail-closed readback, Lambda read-only behavior, and secret protections.
 
----
+## Run locally
+`python3.12 -m venv .venv && source .venv/bin/activate && pip install -e '.[dev]'`
 
-## Core Idea
+Set `DATABASE_URL` locally, apply `schema/001_init.sql` and `schema/002_seed_demo.sql`, then run `PYTHONPATH=src pytest -q`.
 
-```
-Operational incident
-  → memory retrieval       (CockroachDB)
-  → agent proposal         (bounded, scoped)
-  → authority check        (BOSAI governance policy)
-  → Human GO               (explicit approval gate)
-  → controlled AWS action  (Lambda / S3)
-  → state persistence      (CockroachDB write-back)
-  → verified readback      (CockroachDB query)
-  → evidence               (tamper-evident log)
-```
+## Provenance & License
+The BOSAI concept predates the hackathon; this repository implementation was created during the submission period. See `docs/PROVENANCE.md`.
 
-Memory **informs** proposals. Memory never **authorises** execution.
-
----
-
-## Planned Architecture
-
-> All items below are **planned / not yet integrated**.
-
-```
-┌──────────────────────────────────────────────────────┐
-│                  BOSAI Control Plane                 │
-│                                                      │
-│  [Incident Input]                                    │
-│       │                                              │
-│       ▼                                              │
-│  [Memory Retrieval] ◄──── CockroachDB (vector + KV) │
-│       │                                              │
-│       ▼                                              │
-│  [Agent Proposal Generator]                          │
-│       │                                              │
-│       ▼                                              │
-│  [Authority Check] ──── BOSAI Governance Policy      │
-│       │                                              │
-│       ▼                                              │
-│  [Human GO Gate] ◄──── Explicit approval required    │
-│       │                                              │
-│       ▼                                              │
-│  [Controlled Execution] ──── AWS Lambda / S3         │
-│       │                                              │
-│       ▼                                              │
-│  [Persistence + Readback] ──── CockroachDB           │
-│       │                                              │
-│       ▼                                              │
-│  [Evidence Layer]                                    │
-└──────────────────────────────────────────────────────┘
-```
-
----
-
-## Governance Model
-
-- Memory content and vector similarity **never** directly authorize execution.
-- Every consequential action requires a bounded proposal evaluated against
-  explicit policy rules.
-- Where policy permits, a **Human GO** gate must be cleared before execution.
-- All decisions and state transitions are persisted and readable as evidence.
-
----
-
-## Technology Targets
-
-> All items below are **planned / not yet integrated**.
-
-| Technology | Role | Status |
-|---|---|---|
-| CockroachDB Cloud | Persistent agent memory (KV + vector) | Planned |
-| CockroachDB Managed MCP Server | Tool access for agent memory operations | Planned |
-| CockroachDB Distributed Vector Indexing | Semantic memory retrieval | Planned |
-| AWS Lambda | Controlled execution environment | Planned |
-| Amazon S3 | Evidence and artifact storage | Planned |
-| IBM Bob | AI coding assistant and bounded implementation agent | Active (bootstrap) |
-
----
-
-## Development Status
-
-| Milestone | Status |
-|---|---|
-| `0B` — Dedicated Repository & Workspace Bootstrap | ✅ Complete |
-| `0C` — Architecture & Stack Freeze | Not started |
-| `0D` — CockroachDB Schema & Memory Layer | Not started |
-| `0E` — Agent Core & Governance Engine | Not started |
-| `0F` — AWS Integration | Not started |
-| `0G` — End-to-End Demo & Evidence | Not started |
-
----
-
-## Provenance
-
-- BOSAI name and governance philosophy predate this hackathon.
-- All implementation in this repository is new and created specifically for
-  the CockroachDB × AWS Hackathon.
-- No source code is copied from protected BOSAI repositories.
-- See [`docs/PROVENANCE.md`](docs/PROVENANCE.md) for the full declaration.
-
----
-
-## License
-
-[MIT License](LICENSE) — Copyright (c) 2026 Arthur Franck
+MIT License — see `LICENSE`.
