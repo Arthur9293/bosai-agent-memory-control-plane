@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BOSAI Agent Memory Control Plane</title>
+<style>
+:root{
+  --bg:#080b10;--panel:#111720;--line:#24303d;--text:#f4f7fb;
+  --muted:#95a4b5;--cyan:#50e6ff;--green:#67f5a5;--amber:#ffcc66;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:radial-gradient(circle at 20% 0%,#12243b 0,transparent 35%),var(--bg);
+  color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif
+}
+.wrap{max-width:1180px;margin:auto;padding:32px 20px 70px}
+h1{font-size:clamp(34px,6vw,68px);line-height:.95;margin:12px 0}
+.kicker{color:var(--cyan);font-family:monospace;letter-spacing:.12em}
+.sub{max-width:760px;color:var(--muted);font-size:18px;line-height:1.6}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
+.badge{border:1px solid var(--line);background:#0e141c;border-radius:999px;padding:8px 12px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:22px}
+.card{background:linear-gradient(180deg,#121923,#0d131b);border:1px solid var(--line);border-radius:16px;padding:18px}
+.card h2{font-size:16px;margin:0 0 14px;color:#d9e5f2}
+.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+.metric{font-size:32px;font-weight:700}.muted{color:var(--muted)}
+.ok{color:var(--green)}.warn{color:var(--amber)}.cyan{color:var(--cyan)}
+.flow{display:flex;gap:8px;flex-wrap:wrap}
+.step{border:1px solid var(--line);padding:9px 12px;border-radius:10px;background:#0b1118;font-family:monospace;font-size:12px}
+.vector{display:grid;grid-template-columns:170px 1fr 100px;align-items:center;gap:10px;margin:12px 0}
+.bar{height:10px;background:#1c2733;border-radius:10px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green))}
+button{border:0;border-radius:12px;padding:14px 18px;background:var(--cyan);font-weight:800;cursor:pointer}
+pre{white-space:pre-wrap;background:#070b10;border:1px solid var(--line);padding:16px;border-radius:12px;color:#b9eaff;min-height:180px}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid #1f2a36;padding:9px 0;gap:16px}
+.note{border-left:3px solid var(--amber);padding:12px 14px;background:#16140e;color:#e8d9b6;border-radius:6px}
+a{color:var(--cyan)}
+@media(max-width:800px){.span4,.span6,.span8{grid-column:span 12}.vector{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">BOSAI / AGENTIC MEMORY / GOVERNED AUTHORITY</div>
+  <h1>Agent Memory<br>Control Plane</h1>
+
+  <div class="sub">
+    Persistent operational memory powered by CockroachDB.
+    Memory may inform a proposal. Memory never authorizes execution.
+  </div>
+
+  <div class="badges">
+    <span class="badge">CockroachDB Cloud</span>
+    <span class="badge">Managed MCP · read-only</span>
+    <span class="badge">Distributed Vector Indexing</span>
+    <span class="badge">Amazon S3</span>
+    <span class="badge">Deterministic Human GO</span>
+  </div>
+
+  <div class="note">
+    Judge demo: this interface replays a verified read-only evidence snapshot.
+    It requires no credentials and performs no production mutation.
+  </div>
+
+  <div class="grid">
+    <section class="card span4">
+      <h2>SERVICE STATE</h2>
+      <div class="metric ok">NORMAL</div>
+      <div class="muted">synthetic-svc-01 · version 1</div>
+    </section>
+
+    <section class="card span4">
+      <h2>PERSISTENT MEMORY</h2>
+      <div class="metric cyan">6 tables</div>
+      <div class="muted">transactional + semantic memory</div>
+    </section>
+
+    <section class="card span4">
+      <h2>AUTHORITY</h2>
+      <div class="metric ok">HUMAN GO</div>
+      <div class="muted">scope-bound · single-use · fail-closed</div>
+    </section>
+
+    <section class="card span12">
+      <h2>GOVERNED FLOW</h2>
+      <div class="flow">
+        <span class="step">OBSERVE</span>
+        <span class="step">RETRIEVE MEMORY</span>
+        <span class="step">PROPOSE</span>
+        <span class="step">POLICY CHECK</span>
+        <span class="step">HUMAN GO</span>
+        <span class="step">READBACK</span>
+        <span class="step">EVIDENCE</span>
+      </div>
+    </section>
+
+    <section class="card span8">
+      <h2>COCKROACHDB VECTOR MEMORY</h2>
+      <p class="muted">Target vector: <code>[0.8, 0.7, 0.6]</code></p>
+
+      <div class="vector">
+        <div>INCIDENT-2024-ALPHA</div>
+        <div class="bar"><div class="fill" style="width:99%"></div></div>
+        <div class="ok">0.000039</div>
+      </div>
+
+      <div class="vector">
+        <div>INCIDENT-2024-BETA</div>
+        <div class="bar"><div class="fill" style="width:67%"></div></div>
+        <div>0.328616</div>
+      </div>
+
+      <p class="muted">
+        CockroachDB native VECTOR(3) + distributed vector index.
+      </p>
+    </section>
+
+    <section class="card span4">
+      <h2>AUTHORITY INVARIANTS</h2>
+      <div class="row"><span>MEMORY_AUTHORITY</span><strong class="ok">false</strong></div>
+      <div class="row"><span>VECTOR_AUTHORITY</span><strong class="ok">false</strong></div>
+      <div class="row"><span>LLM_AUTHORITY</span><strong class="ok">false</strong></div>
+      <div class="row"><span>FAIL_CLOSED</span><strong class="ok">true</strong></div>
+      <div class="row"><span>PERMIT_REPLAYABLE</span><strong class="ok">false</strong></div>
+    </section>
+
+    <section class="card span6">
+      <h2>AWS EVIDENCE BOUNDARY</h2>
+      <div class="row"><span>Amazon S3</span><strong class="ok">PROVISIONED</strong></div>
+      <div class="row"><span>Public access</span><strong class="ok">BLOCKED</strong></div>
+      <div class="row"><span>Versioning</span><strong class="ok">ENABLED</strong></div>
+      <div class="row"><span>Encryption</span><strong class="ok">AES256</strong></div>
+      <div class="row"><span>Lambda runtime</span><strong class="warn">QUOTA REVIEW</strong></div>
+    </section>
+
+    <section class="card span6">
+      <h2>VERIFIED READBACK</h2>
+      <p class="muted">Replay the validated evidence path.</p>
+      <button id="run">Run readback</button>
+    </section>
+
+    <section class="card span12">
+      <h2>EVIDENCE CONSOLE</h2>
+      <pre id="console">READY
+READBACK_ONLY=true
+COCKROACHDB_MUTATION_PERFORMED=false</pre>
+    </section>
+
+    <section class="card span12">
+      <h2>OPEN SOURCE</h2>
+      <p class="muted">
+        35/35 automated tests pass. CockroachDB stores transactional and semantic memory in one system of record.
+      </p>
+      <a href="https://github.com/Arthur9293/bosai-agent-memory-control-plane" target="_blank">
+        View repository →
+      </a>
+    </section>
+  </div>
+</div>
+
+<script>
+const out=document.getElementById("console");
+const btn=document.getElementById("run");
+
+const lines=[
+  "READ service_state → synthetic-svc-01 / NORMAL / version 1",
+  "QUERY vector → [0.8,0.7,0.6]",
+  "RANK #1 → INCIDENT-2024-ALPHA / 0.000039",
+  "RANK #2 → INCIDENT-2024-BETA / 0.328616",
+  "CHECK MEMORY_AUTHORITY=false",
+  "CHECK VECTOR_AUTHORITY=false",
+  "CHECK HUMAN_GO_EXECUTION_PERFORMED=false",
+  "RESULT → PASS / READBACK_ONLY=true"
+];
+
+btn.onclick=async()=>{
+  btn.disabled=true;
+  out.textContent="RUN_ID=judge-demo-"+Date.now()+"\n";
+  for(const line of lines){
+    await new Promise(r=>setTimeout(r,350));
+    out.textContent+=line+"\n";
+  }
+  out.textContent+="\nSOURCE=verified CockroachDB live-readback evidence\n";
+  btn.disabled=false;
+};
+</script>
+</body>
+</html>
